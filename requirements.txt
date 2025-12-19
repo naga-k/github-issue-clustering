@@ -1,0 +1,11 @@
+sentence-transformers
+scikit-learn
+numpy
+requests
+python-dotenv
+pandas
+packaging
+google-genai
+umap-learn
+plotly
+kaleido

@@ -4,7 +4,7 @@ Cluster and evaluate issue/feedback items stored in `issues_raw.csv`.
 
 ## Quick start
 1) Create env: `python -m venv .venv && source .venv/bin/activate && python -m pip install --upgrade pip`
-2) Install deps: `pip install -U sentence-transformers scikit-learn numpy requests python-dotenv pandas packaging google-genai`
+2) Install deps: `pip install -r requirements.txt`
 3) Put your data in `issues_raw.csv` with columns `title`, `body`, and optional `label`.
 4) Set `GOOGLE_API_KEY` in `.env` (or env var) to use Gemini embeddings; otherwise set `model_name` to a SentenceTransformer in the notebook.
 5) Open `issue_clustering.ipynb` and run the cells.
@@ -15,6 +15,8 @@ Cluster and evaluate issue/feedback items stored in `issues_raw.csv`.
 - Evaluates against `label` if present (ARI/AMI/H/C/V).
 - Compares two incremental strategies: vector-style neighbor join and centroid-style incremental assignment.
 - Includes a threshold sweep to see how hyperparameters affect ARI/AMI.
+- **Vector visualization**: Interactive 2D/3D plots using UMAP dimensionality reduction to explore embeddings.
+- **Similarity exploration**: Find most similar items and visualize pairwise similarity heatmaps.
 
 ## Notes
 - Data normalization handles NaN/float inputs safely.
