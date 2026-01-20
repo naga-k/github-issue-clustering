@@ -1,0 +1,13 @@
+sentence-transformers
+scikit-learn
+numpy
+requests
+python-dotenv
+pandas
+packaging
+google-genai
+umap-learn
+plotly
+kaleido
+ipykernel
+nbformat>=4.2.0
