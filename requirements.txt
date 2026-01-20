@@ -8,6 +8,7 @@ packaging
 google-genai
 umap-learn
 plotly
+matplotlib
 kaleido
 ipykernel
 nbformat>=4.2.0

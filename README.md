@@ -5,11 +5,30 @@ Analyze and cluster GitHub issues using semantic embeddings. Automatically fetch
 ## Features
 
 - **Auto-fetch from GitHub**: Just set `REPO_NAME` and issues are fetched automatically
+- **Hierarchical clustering**: Cluster at multiple similarity levels (50%, 65%, 80%) with navigable tree output
 - **Embedding caching**: Embeddings saved locally to avoid recomputation
 - **Multiple clustering strategies**: Agglomerative, vector-style neighbor join, centroid-style
-- **Interactive visualizations**: 2D/3D UMAP plots with Plotly
+- **Interactive visualizations**: Sunburst, treemap, dendrogram, 2D/3D UMAP plots
+- **Markdown export**: Full cluster tree with issue titles, descriptions, and GitHub issue numbers
 - **Cross-repo comparison**: Analyze multiple repos and compare clustering results
-- **Evaluation metrics**: ARI, AMI, Homogeneity, Completeness, V-measure (when labels available)
+
+## Example Results
+
+| Repo | Issues | Clusters (65%) | Singletons | Quality |
+|------|--------|----------------|------------|---------|
+| facebook/react | 843 | 27 | 11 | 7/10 |
+| plotly/plotly.js | 500 | 59 | 24 | 7.5/10 |
+
+Results saved to `results/{repo}_hierarchy.md` with full tree structure.
+
+### Hierarchical Treemap (facebook/react)
+![Treemap](docs/images/hierarchial-clusters-react-treemap.png)
+
+### 2D Embedding Space
+![2D Clusters](docs/images/predicted-clusters-2d-plot-react.png)
+
+### 3D Embedding Space
+![3D Clusters](docs/images/predicted-clusters-3d-plot-react.png)
 
 ## Quick Start
 
@@ -25,9 +44,11 @@ Analyze and cluster GitHub issues using semantic embeddings. Automatically fetch
    GITHUB_TOKEN=your_github_personal_access_token
    ```
 
-3. Open `issue_clustering.ipynb` and set `REPO_NAME`:
+3. Open `issue_clustering.ipynb` and set config:
    ```python
-   REPO_NAME = "owner/repo"  # e.g., "facebook/react"
+   REPO_NAME = "facebook/react"  # Any GitHub repo
+   ISSUE_STATE = "open"          # "open", "closed", or "all"
+   MAX_ISSUES = None             # None for no limit, or a number
    ```
 
 4. Run all cells - issues will be fetched, embedded, clustered, and visualized.
@@ -37,7 +58,7 @@ Analyze and cluster GitHub issues using semantic embeddings. Automatically fetch
 ```
 ├── data/                    # Cached issue CSVs (auto-created)
 ├── embeddings/              # Cached embedding numpy files (auto-created)
-├── results/                 # Clustering results for comparison (auto-created)
+├── results/                 # Clustering results and markdown exports (auto-created)
 ├── issue_clustering.ipynb   # Main notebook
 ├── requirements.txt
 └── .env                     # API keys (not committed)
@@ -45,22 +66,37 @@ Analyze and cluster GitHub issues using semantic embeddings. Automatically fetch
 
 ## Configuration
 
-In the notebook's config cell:
-
 | Variable | Description |
 |----------|-------------|
 | `REPO_NAME` | GitHub repo to analyze (e.g., `"plotly/plotly.js"`) |
+| `ISSUE_STATE` | Filter by state: `"open"`, `"closed"`, or `"all"` |
+| `MAX_ISSUES` | Limit issues fetched (`None` for all) |
 | `FORCE_RECOMPUTE` | Set `True` to recompute embeddings even if cached |
-| `SIM_THRESHOLD` | Similarity threshold for clustering (default: 0.72) |
 
-## Workflow
+## Hierarchical Clustering
 
-1. **Set repo** → `REPO_NAME = "owner/repo"`
-2. **Fetch/load issues** → Auto-downloads if not cached in `data/`
-3. **Compute embeddings** → Uses Gemini API, caches in `embeddings/`
-4. **Cluster** → Agglomerative clustering with cosine similarity
-5. **Visualize** → 2D/3D UMAP plots, similarity heatmaps
-6. **Save results** → Stored in `results/` for cross-repo comparison
+Clusters issues at 3 similarity levels:
+
+- **50% (loose)**: Broad topic groups
+- **65% (medium)**: Related sub-topics
+- **80% (tight)**: Very similar/duplicate issues
+
+Output is a navigable tree:
+```
+📁 Cluster 12 @ 65% similarity (192 issues)
+  📁 Cluster 147 @ 80% similarity (35 issues)
+    📄 [#35569] React Compiler conditionally memoize...
+    📄 [#35554] allow 'use no memo' inside callbacks
+    📄 [#35386] .map() callback extracted breaks closure...
+```
+
+## Visualizations
+
+- **Sunburst chart**: Click to zoom into cluster hierarchy
+- **Treemap**: See relative cluster sizes
+- **Dendrogram**: Full hierarchical structure with cut lines
+- **2D/3D UMAP**: Embedding space visualization
+- **Similarity heatmap**: Pairwise issue similarities
 
 ## Embedding Models
 
@@ -69,6 +105,7 @@ In the notebook's config cell:
 
 ## Notes
 
-- Gemini API has a 100-item batch limit - handled automatically
-- Issues are cached locally after first fetch
-- NaN/empty values handled safely throughout
+- Gemini API has 100-item batch limit - handled automatically with batching
+- Issues cached locally after first fetch (invalidate by deleting CSV in `data/`)
+- Markdown output includes actual GitHub issue numbers for easy lookup
+- Clustering quality varies by repo - 65% threshold works well for most cases
