@@ -9,3 +9,5 @@ google-genai
 umap-learn
 plotly
 kaleido
+ipykernel
+nbformat>=4.2.0
